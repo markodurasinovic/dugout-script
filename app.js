@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const argv = require('yargs').argv;
+const PlayerLoader = require('./PlayerLoader');
 const homePage = 'https://www.dugout-online.com/';
 
 async function main(to) {
@@ -7,7 +8,7 @@ async function main(to) {
     let page = await browserData[0];
     let browser = await browserData[1];
   
-    await login(page, getUsername(), getPassword());
+    await login(page, argv.username, argv.password);
     await goTo(page, 'Club');
     await goTo(page, 'Players');
     await movePlayers(page, to);
@@ -24,33 +25,37 @@ async function startBrowser(homePage) {
 };
 
 async function movePlayers(page, to) {
+    let playerLoader = new PlayerLoader();
+    let players = playerLoader.getPlayers(argv.path);
+    
     if (to === 'youth') {
-        await movePlayersToYouth(page);
+        await movePlayersToYouth(page, players);
     } else {
-        await movePlayersToSenior(page);
+        await movePlayersToSenior(page, players);
     }
 };
 
-async function movePlayersToYouth(page) {
+async function movePlayersToYouth(page, playersToTransfer) {
     for (player of playersToTransfer) {
-        await goTo(page, player);
+        if (player === '\n') {
+            return;
+        }
+        await goTo(page, player);        
         await clickLink(page, 'input[value="Move to youth"]');
         await goTo(page, 'Players');
+    }    
+};
+
+async function movePlayersToSenior(page, playersToTransfer) {
+    for (player of playersToTransfer) {
+        if (player === '\n') {
+            return;
+        }
+        await clickLink(page, 'div[id="youth2"]');
+        await goTo(page, player);
+        await clickLink(page, 'input[value="Move to 1st"]');
+        await goTo(page, 'Players')
     }
-};
-
-// async function movePlayersToSenior(page) {
-//     for (player of playersToTransfer) {
-//         await
-//     }
-// };
-
-function getUsername() {
-    return argv.username;
-};
-
-function getPassword() {
-    return argv.password;
 };
 
 async function login(page, username, password) {
@@ -78,9 +83,15 @@ async function goTo(page, pageName) {
 
     let link = getPage(page, pageName);
     link.then((res) => {
+        if (res === null) {
+            console.log('Page', pageName, 'could not be found');
+            return false;
+        }
         res.click();
     });
     await page.waitForNavigation();
+
+    return true;
 };
 
 async function getPage(page, pageName) {
