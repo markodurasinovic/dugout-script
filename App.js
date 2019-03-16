@@ -1,27 +1,20 @@
-const puppeteer = require('puppeteer');
 const argv = require('yargs').argv;
 const PlayerLoader = require('./PlayerLoader');
+const puppeteer = require('puppeteer');
+const Browser = require('./Browser');
 const homePage = 'https://www.dugout-online.com/';
 
 async function main(to) {
-    let browserData = await startBrowser(homePage);
-    let page = await browserData[0];
-    let browser = await browserData[1];
-  
+    let browser = new Browser(homePage);
+    await browser.start(homePage);
+    let page = await browser.getPage();
+
     await login(page, argv.username, argv.password);
     await goTo(page, 'Club');
     await goTo(page, 'Players');
     await movePlayers(page, to);
     
-    await closeBrowser(browser);
-};
-
-async function startBrowser(homePage) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(homePage);
-
-    return [page, browser];
+    browser.quit();
 };
 
 async function movePlayers(page, to) {
@@ -44,6 +37,7 @@ async function movePlayersToYouth(page, playersToTransfer) {
         await clickLink(page, 'input[value="Move to youth"]');
         await goTo(page, 'Players');
     }    
+    console.log('All players moved to youth')
 };
 
 async function movePlayersToSenior(page, playersToTransfer) {
@@ -56,6 +50,7 @@ async function movePlayersToSenior(page, playersToTransfer) {
         await clickLink(page, 'input[value="Move to 1st"]');
         await goTo(page, 'Players')
     }
+    console.log('All players moved to senior')
 };
 
 async function login(page, username, password) {
@@ -104,12 +99,6 @@ async function getPage(page, pageName) {
         }
     }
     return null;
-};
-
-async function closeBrowser(browser) {
-    console.log('Closing the browser!');
-
-    await browser.close();
 };
 
 main(argv.to);
