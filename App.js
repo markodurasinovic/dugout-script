@@ -5,13 +5,36 @@ const PlayerLoader = require('./PlayerLoader');
 const homePage = 'https://www.dugout-online.com/';
 const browser = new Browser();
 
+const express = require('express');
+const app = express();
+
+const jsdom = require('jsdom');
+
+// const b1 = window.getElementByID('toYouthButton');
+
+// const b1 = document.getElementById('toYouthButton');
+// const b2 = document.getElementById('toSeniorButton');
+
 async function main() {
     await browser.start(homePage);
 
-    await login(argv.username, argv.password);
-    await movePlayers(argv.to);
+    app.listen(8080, ()=> {
+        console.log('listening on 8080');
+    });
+
+    app.get('/', (req, res) => {
+        // res.sendFile(__dirname + '/public/index.html');
+        const dom = jsdom.fromFile('public/index.html').then((dom) => {
+            let window = dom.window;
+            document = window.document;
+
+            console.log(document);
+        })
+    });
+    // await login(argv.username, argv.password);
+    // await movePlayers(argv.to);
     
-    browser.quit();
+    // browser.quit();
 };
 
 async function login(username, password) {

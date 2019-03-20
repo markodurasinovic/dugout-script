@@ -7,7 +7,9 @@
     "puppeteer": "^1.13.0",
     "yargs": "^13.2.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "electron": "^4.1.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
