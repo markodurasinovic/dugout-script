@@ -2,13 +2,14 @@
   "name": "dugout-script",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "App.js",
   "dependencies": {
-    "prompt": "^1.0.0",
     "puppeteer": "^1.13.0",
     "yargs": "^13.2.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "electron": "^4.1.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
